@@ -1,6 +1,6 @@
 {
   "name": "curlas",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "\"copy as cURL\"(chrome) revert \"cURL as request\" (nodejs)",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,9 @@
     "curl",
     "request"
   ],
-  "bin": "./index.js",
+  "bin": {
+    "curlas": "./index.js"
+  },
   "files": [
     "./index.js",
     "./package.json"
