@@ -1,0 +1,33 @@
+{
+  "name": "curlas",
+  "version": "1.0.2",
+  "description": "\"copy as cURL\"(chrome) revert \"cURL as request\" (nodejs)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ktont/curlas.git"
+  },
+  "keywords": [
+    "parse-curl",
+    "curl",
+    "request"
+  ],
+  "bin": "./index.js",
+  "files": [
+    "./index.js",
+    "./package.json"
+  ],
+  "dependencies": {
+    "parse-curl": "0.2.6",
+    "request": "*"
+  },
+  "author": "zhi.liang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ktont/curlas/issues"
+  },
+  "homepage": "https://github.com/ktont/curlas#readme"
+}

@@ -1,5 +1,7 @@
 # curlas
 
+npm install -g curlas
+
 ![](_img/1.png)
 
 
