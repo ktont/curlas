@@ -1,6 +1,6 @@
 {
   "name": "curlas",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "\"copy as cURL\"(chrome) revert \"cURL as request\" (nodejs)",
   "main": "index.js",
   "scripts": {
@@ -22,10 +22,6 @@
     "./index.js",
     "./package.json"
   ],
-  "dependencies": {
-    "parse-curl": "0.2.6",
-    "request": "*"
-  },
   "author": "zhi.liang",
   "license": "ISC",
   "bugs": {

@@ -1,5 +1,5 @@
 
-var parseCurl = require('parse-curl');
+var parseCurl = require('./thirdPart/parse-curl.js');
 var fs = require('fs');
 
 var curl = process.argv[2];
