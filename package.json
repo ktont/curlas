@@ -1,7 +1,7 @@
 {
   "name": "curlas",
   "version": "3.0.0",
-  "description": "\"copy as cURL\"(chrome) revert \"cURL as request\" (nodejs)",
+  "description": "\"copy as cURL\"(chrome) revert \"cURL as request\" (nodejs bash ...)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,10 @@
   "keywords": [
     "parse-curl",
     "curl",
-    "request"
+    "request",
+    "spider",
+    "js spider",
+    "jspider"
   ],
   "bin": {
     "curlas": "./index.js"
