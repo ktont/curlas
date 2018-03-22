@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 var parseCurl = require('./thirdPart/parse-curl.js');
-var fs = require('fs');
+var prettyBash = require('./lib/pretty.js');
 
-var curl = process.argv[2];
+var fs = require('fs');
 
 function Usage() {
   console.log(`
@@ -14,6 +14,32 @@ function Usage() {
   process.exit(1);
 }
 
+function _parseArgv() {
+  var _ = [];
+  var args_ = process.argv.slice(2);
+  var type = 'bash';
+
+  for(var i = 0; i < args_.length; i++) {
+    let a = args_[i];
+    switch(a) {
+      case '--bash': 
+      case '--sh': 
+        type = 'bash';
+        break;
+      case '--javascript': 
+      case '--js': 
+        type = 'javascript';
+        break;
+      default:
+        _.push(a);
+        break;
+    }
+  }
+  return [type, _[0]];
+}
+
+var [outputType, curl] = _parseArgv();
+
 if(!curl) Usage();
 
 if(!/^\s*curl /.test(curl)) {
@@ -22,6 +48,13 @@ if(!/^\s*curl /.test(curl)) {
   } else {
     Usage();
   }
+}
+
+if(outputType == 'bash') {
+  console.log();
+  console.log(prettyBash(curl));
+  console.log();
+  process.exit(0);
 }
 
 var root_ = parseCurl(curl);
