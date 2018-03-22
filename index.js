@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 var parseCurl = require('./thirdPart/parse-curl.js');
 var fs = require('fs');
