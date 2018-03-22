@@ -7,14 +7,50 @@ npm install -g curlas
 ## express
 
 ```
-curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'"
-curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'" --bash
-curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'" --sh
 curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'" --javascript
 curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'" --js
 curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'" --js | node
+curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'"
+curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'" --bash
+curlas "curl http://www.purepen.com -H 'A: 1' -H 'B: 2'" --sh
 ```
 
+output
+
+```
+curl http://www.purepen.com \
+-H 'A: 1' \
+-H 'B: 2'
+```
+
+```
+var request = require('request');
+
+module.exports = function() {
+  var url_ = "http://www.purepen.com";
+
+  var opt_ = {
+    "method": "GET",
+    "url": url_,
+    "headers": {
+        "A": "1",
+        "B": "2"
+    }
+  };
+  return new Promise((resolve, reject) => {
+    request(opt_, (err, res, body) => {
+      console.log(err, res.statusCode, body);
+      if(err) return reject(err);
+      if(res.statusCode !== 200) {
+        return reject(new Error('statusCode'+res.statusCode));
+      }
+      return resolve(body);
+    });
+  });
+}
+
+module.exports();
+```
 ## but, save file for upload request 
 
 ![](_img/1.png)
