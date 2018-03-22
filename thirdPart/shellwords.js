@@ -38,10 +38,16 @@ module.exports = function(s) {
       arr_.pop();
       let sub_ = arr_.join(''); while(arr_.pop());
       if(expand) {
-        sub_ = sub_
-          .replace(/\\r/g, '\r')
-          .replace(/\\n/g, '\n');
-        expand = false;
+        sub_ = sub_.replace(/\\./g, function($1) {
+          switch($1[1]) {
+            case 'r': return '\r';
+            case 'n': return '\n';
+            case 'b': return '\x08';
+            case 'f': return '\x0c';
+            case 't': return '\x09';
+            default: return $1[1];
+          }
+        });
       }
       ret.push(sub_);
       expectWord = true;

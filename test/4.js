@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-var s = fs.readFileSync('./5.txt', 'utf8');
+var s = fs.readFileSync('./1.txt', 'utf8');
 
 s = s.trim();
 s = s + ' ';
