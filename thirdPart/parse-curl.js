@@ -12,7 +12,7 @@ module.exports = exports.default = function(s) {
   if (0 != s.indexOf('curl ')) return;
   var words = shellwords(s);
   var args = rewrite(words);
-  var out = { method: 'GET', header: {} };
+  var out = { method: 'GET', headers: {} };
   var state = '';
 
   args.forEach(function(arg){
@@ -54,23 +54,23 @@ module.exports = exports.default = function(s) {
         break;
 
       case arg == '--compressed':
-        out.header['Accept-Encoding'] = out.header['Accept-Encoding'] || 'deflate, gzip'
+        out.headers['Accept-Encoding'] = out.headers['Accept-Encoding'] || 'deflate, gzip'
         break;
 
       case !!arg:
         switch (state) {
           case 'header':
             var field = parseField(arg)
-            out.header[field[0]] = field[1]
+            out.headers[field[0]] = field[1]
             state = ''
             break;
           case 'user-agent':
-            out.header['User-Agent'] = arg
+            out.headers['User-Agent'] = arg
             state = ''
             break;
           case 'data':
             if (out.method == 'GET' || out.method == 'HEAD') out.method = 'POST'
-            out.header['Content-Type'] = out.header['Content-Type'] || 'application/x-www-form-urlencoded'
+            out.headers['Content-Type'] = out.headers['Content-Type'] || 'application/x-www-form-urlencoded'
             out.body = out.body
               ? out.body + '&' + arg
               : arg
@@ -81,7 +81,7 @@ module.exports = exports.default = function(s) {
             out.body = arg;
             break;
           case 'user':
-            out.header['Authorization'] = 'Basic ' + btoa(arg)
+            out.headers['Authorization'] = 'Basic ' + btoa(arg)
             state = ''
             break;
           case 'method':
@@ -89,7 +89,7 @@ module.exports = exports.default = function(s) {
             state = ''
             break;
           case 'cookie':
-            out.header['Set-Cookie'] = arg
+            out.headers['Set-Cookie'] = arg
             state = ''
             break;
         }

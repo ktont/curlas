@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
+var fs = require('fs');
 var parseCurl = require('./thirdPart/parse-curl.js');
 var prettyBash = require('./lib/pretty.js');
-
-var fs = require('fs');
+var cookieModule = require('./thirdPart/cookie.js');
 
 function Usage() {
   console.log(`
@@ -38,6 +38,26 @@ function _parseArgv() {
   return [type, _[0]];
 }
 
+function _prettyJSON(str, n) {
+  var space = [];
+  while(n--) space.push(' ');
+  space = space.join('');
+  var sp_ = str.split('\n');
+  for(var i = 1; i < sp_.length; i++) {
+    sp_[i] = space + sp_[i];
+  }
+  return sp_.join('\n');
+}
+
+function _prettyArray(sp_, n) {
+  var space = [];
+  while(n--) space.push(' ');
+  space = space.join('');
+  for(var i = 1; i < sp_.length; i++) {
+    sp_[i] = space + sp_[i];
+  }
+}
+
 var [outputType, curl] = _parseArgv();
 
 if(!curl) Usage();
@@ -59,42 +79,61 @@ if(outputType == 'bash') {
 
 var root_ = parseCurl(curl);
 
-root_.headers = root_.header;
-delete root_.header;
+var additionVariable = [];
+var additionRequire = [];
+var additionFunction = [];
 
-var str_ = JSON.stringify(root_, null, 4);
+var str_ = JSON.stringify(root_, null, 2);
 
-var url_ = '', cookie_ = '';
-str_ = str_.replace(/"url": (.*),/, function(_, $1) {
-  url_ = `var url_ = ${$1};`;
+str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
+  additionVariable.push(`var url_ = "${$1}";`);
   return '"url": url_,';
 });
 
 str_ = str_.replace(/"Cookie": "(.*)",?/, function(_, $1) {
-  cookie_ = `var cookie_ = "${$1}";`;
-  return '"Cookie": cookie_,';
+  if($1.length > 50) {
+    let c = cookieModule.parse($1);
+    c = JSON.stringify(c, null, 2);
+    c = _prettyJSON(c, 2);
+    additionFunction.push(cookieModule.stringify.toString());
+    additionVariable.push(`var cookie_ = cookieStringify(${c});`);
+    return '"Cookie": cookie_,';
+  } else {
+    additionVariable.push(`var cookie_ = "${$1}";`);
+    return '"Cookie": cookie_,';
+  }
 });
 
-str_ = str_.slice(0, str_.length-1) + '  }';
+str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
+  let b = require('querystring').parse($1);
+  additionRequire.push("const querystring = require('querystring');")
+  b = JSON.stringify(b, null, 2);
+  b = _prettyJSON(b, 2);
+  additionVariable.push(`var body_ = querystring.stringify(${b});`);
+  return '"body": body_,';
+});
 
-console.log(`
-var request = require('request');
+additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
+_prettyArray(additionVariable, 2);
 
+console.log(`const request = require('request');
+${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 module.exports = function() {
-  ${url_}
-  ${cookie_}
-  var opt_ = ${str_};
+  ${additionVariable.join('\n')}
   return new Promise((resolve, reject) => {
     request(opt_, (err, res, body) => {
-      console.log(err, res.statusCode, body);
       if(err) return reject(err);      
       if(res.statusCode !== 200) {
         return reject(new Error('statusCode'+res.statusCode));
       }
-      return resolve(body);
+      return resolve({
+        header: res.headers,
+        body
+      });
     });
   });
 }
-
-module.exports();
-`)
+${additionFunction.length ? '\n'+additionFunction.join('\n')+'\n' : ''}
+module.exports()
+.then(console.log)
+.catch(console.error)`)
