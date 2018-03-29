@@ -24,32 +24,35 @@ curl http://www.purepen.com \
 ```
 
 ```
-var request = require('request');
+const request = require('request');
 
 module.exports = function() {
   var url_ = "http://www.purepen.com";
-
   var opt_ = {
     "method": "GET",
-    "url": url_,
     "headers": {
-        "A": "1",
-        "B": "2"
-    }
+      "A": "1",
+      "B": "2"
+    },
+    "url": url_,
   };
   return new Promise((resolve, reject) => {
     request(opt_, (err, res, body) => {
-      console.log(err, res.statusCode, body);
       if(err) return reject(err);
       if(res.statusCode !== 200) {
         return reject(new Error('statusCode'+res.statusCode));
       }
-      return resolve(body);
+      return resolve({
+        header: res.headers,
+        body
+      });
     });
   });
 }
 
-module.exports();
+module.exports()
+.then(console.log)
+.catch(console.error)
 ```
 ## but, save file for upload request 
 
@@ -68,41 +71,8 @@ curlas /tmp/curl.sh --js
 
 output
 
-```js
-var request = require('request');
-
-module.exports = function() {
-  var url_ = "http://localhost:3333/upload";
-
-  var opt_ = {
-    "method": "POST",
-    "url": url_,
-    "body": "------WebKitFormBoundaryrBg7MlrcbamQBPGE\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\n0.txt\r\n------WebKitFormBoundaryrBg7MlrcbamQBPGE\r\nContent-Disposition: form-data; name=\"uuid\"\r\n\r\n15622520882158097\r\n------WebKitFormBoundaryrBg7MlrcbamQBPGE\r\nContent-Disposition: form-data; name=\"file\"; filename=\"0.txt\"\r\nContent-Type: text/plain\r\n\r\n\r\n------WebKitFormBoundaryrBg7MlrcbamQBPGE--\r\n",
-    "headers": {
-        "Origin": "http://localhost",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36",
-        "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryrBg7MlrcbamQBPGE",
-        "Accept": "*/*",
-        "Referer": "http://localhost/",
-        "Connection": "keep-alive"
-    }
-  };
-  return new Promise((resolve, reject) => {
-    request(opt_, (err, res, body) => {
-      console.log(err, res.statusCode, body);
-      if(err) return reject(err);
-      if(res.statusCode !== 200) {
-        return reject(new Error('statusCode'+res.statusCode));
-      }
-      return resolve(body);
-    });
-  });
-}
-
-module.exports();
-```
+![](_img/2.png)
+![](_img/3.png)
 
 ## more example
 ```sh

@@ -105,12 +105,18 @@ str_ = str_.replace(/"Cookie": "(.*)",?/, function(_, $1) {
 });
 
 str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
-  let b = require('querystring').parse($1);
-  additionRequire.push("const querystring = require('querystring');")
-  b = JSON.stringify(b, null, 2);
-  b = _prettyJSON(b, 2);
-  additionVariable.push(`var body_ = querystring.stringify(${b});`);
-  return '"body": body_,';
+  const contype = root_.headers["Content-Type"];
+  if(contype && contype.startsWith('application/x-www-form-urlencoded')) {
+    let b = require('querystring').parse($1);
+    b = JSON.stringify(b, null, 2);
+    b = _prettyJSON(b, 2);
+    additionRequire.push("const querystring = require('querystring');")
+    additionVariable.push(`var body_ = querystring.stringify(${b});`);
+    return '"body": body_,';
+  } else {
+    additionVariable.push(`var body_ = "${b}";`);
+    return '"body": body_,';
+  }
 });
 
 additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
