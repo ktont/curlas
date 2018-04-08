@@ -106,8 +106,8 @@ str_ = str_.replace(/"Cookie": "(.*)",?/, function(_, $1) {
 
 str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
   const contype = root_.headers["Content-Type"];
+  let b = require('querystring').parse($1);
   if(contype && contype.startsWith('application/x-www-form-urlencoded')) {
-    let b = require('querystring').parse($1);
     b = JSON.stringify(b, null, 2);
     b = _prettyJSON(b, 2);
     additionRequire.push("const querystring = require('querystring');")
