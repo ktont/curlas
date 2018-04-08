@@ -114,7 +114,7 @@ str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
     additionVariable.push(`var body_ = querystring.stringify(${b});`);
     return '"body": body_,';
   } else {
-    additionVariable.push(`var body_ = "${b}";`);
+    additionVariable.push(`var body_ = "${$1}";`);
     return '"body": body_,';
   }
 });
