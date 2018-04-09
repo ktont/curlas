@@ -4,12 +4,13 @@ var fs = require('fs');
 var parseCurl = require('./thirdPart/parse-curl.js');
 var prettyBash = require('./lib/pretty.js');
 var cookieModule = require('./thirdPart/cookie.js');
+var ndjson = require('./thirdPart/ndjson.js');
 
 function Usage() {
   console.log(`
   Usage: curlas ./file/name/req.sh
     或者
-         curlas "curl http://lcoal.com -H 'Accept-Encoding: gzip, deflate' -H 'Cookie: a=1'"
+         curlas "curl http://localhost -H 'Accept-Encoding: gzip, deflate' -H 'Cookie: a=1'"
   `);
   process.exit(1);
 }
@@ -105,13 +106,20 @@ str_ = str_.replace(/"Cookie": "(.*)",?/, function(_, $1) {
 });
 
 str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
-  const contype = root_.headers["Content-Type"];
-  let b = require('querystring').parse($1);
+  const contype = root_.headers["Content-Type"] ||
+                  root_.headers["content-type"];
+
   if(contype && contype.startsWith('application/x-www-form-urlencoded')) {
+    let b = require('querystring').parse($1);  
     b = JSON.stringify(b, null, 2);
     b = _prettyJSON(b, 2);
     additionRequire.push("const querystring = require('querystring');")
     additionVariable.push(`var body_ = querystring.stringify(${b});`);
+    return '"body": body_,';
+  } else if(contype && contype.startsWith('application/x-ndjson')) {
+    let b = ndjson.parse($1, 2);
+    additionFunction.push(ndjson.stringify.toString());
+    additionVariable.push(`var body_ = ndjsonStringify(${b});`);
     return '"body": body_,';
   } else {
     additionVariable.push(`var body_ = "${$1}";`);
@@ -169,7 +177,7 @@ module.exports = function() {
     });
   });
 }
-${additionFunction.length ? '\n'+additionFunction.join('\n')+'\n' : ''}
+${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
 module.exports()
 .then(console.log)
 .catch(console.error)`)

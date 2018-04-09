@@ -32,5 +32,6 @@
   "bugs": {
     "url": "https://github.com/ktont/curlas/issues"
   },
-  "homepage": "https://github.com/ktont/curlas#readme"
+  "homepage": "https://github.com/ktont/curlas#readme",
+  "dependencies": {}
 }
