@@ -1,5 +1,17 @@
 # curlas
 
+## self1 
+
+这个分支是写给我自己的
+
+5.js 是一个很好用的正则的练习 s.replace(/(?:qty)|(?:[a-z]+Qty)/g, (x) => x+'D')
+
+?: 的含义是什么
+我用了分组，但是请不要为我分配组号，也不要捕获匹配到的文本
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions
+
+
 ## npm install -g curlas
 
 npm install -g curlas
