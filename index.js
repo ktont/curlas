@@ -123,18 +123,48 @@ additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
 _prettyArray(additionVariable, 2);
 
 console.log(`const request = require('request');
+const zlib = require('zlib');
 ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 module.exports = function() {
   ${additionVariable.join('\n')}
+
+  let header = null;
   return new Promise((resolve, reject) => {
-    request(opt_, (err, res, body) => {
-      if(err) return reject(err);      
+    request(opt_)
+    .on('response', function(res) {
       if(res.statusCode !== 200) {
         return reject(new Error('statusCode'+res.statusCode));
       }
-      return resolve({
-        header: res.headers,
-        body
+      header = res.headers;
+      switch (header['content-encoding']) {
+        case 'gzip':
+          resolve(this.pipe(zlib.createGunzip()));
+          break;
+        case 'deflate':
+          resolve(this.pipe(zlib.createInflate()));
+          break;
+        default:
+          resolve(this);
+          break;
+      }
+    })
+    .on('error', function(err) {
+      reject(err);
+    });
+  })
+  .then((strm) => {
+    return new Promise((resolve, reject) => {
+      const bufs = [];
+      strm
+      .on('data', bufs.push.bind(bufs))
+      .on('end', function() {
+        return resolve({
+          header,
+          body: Buffer.concat(bufs).toString()
+        });
+      })
+      .on('error', function(err) {
+        reject(err);
       });
     });
   });
