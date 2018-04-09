@@ -85,6 +85,3 @@ output
 null 200 blabla
 ```
 
-## 遗留问题
-
-- kibana https 查询出来的数据没有解密？
