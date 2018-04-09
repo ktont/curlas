@@ -54,6 +54,14 @@ module.exports()
 .then(console.log)
 .catch(console.error)
 ```
+
+## support
+
+- cookie parse
+- binary-body
+- content-type: application/x-ndjson
+- gzip deflate compress
+
 ## but, save file for upload request 
 
 ![](_img/1.png)
