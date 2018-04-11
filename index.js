@@ -167,7 +167,7 @@ module.exports = function() {
       }
       resolve({
         header,
-        body: buf.toString()
+        body: buf
       })
     })
     .on('error', function(err) {
@@ -177,5 +177,15 @@ module.exports = function() {
 }
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
 module.exports()
-.then(console.log)
+.then((root_) => {
+  let str = root_.body.toString();
+  if(str[0] == '{' && str[str.length-1] == '}') {
+    try {
+      str = JSON.stringify(JSON.parse(str), null, 4);
+    } catch(e) {}
+  }
+  console.log(JSON.stringify(root_.header, null, 4));
+  console.log();
+  console.log(str);
+})
 .catch(console.error)`)
