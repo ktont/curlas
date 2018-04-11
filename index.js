@@ -142,46 +142,38 @@ ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 module.exports = function() {
   ${additionVariable.join('\n')}
 
-  let header = null;
   return new Promise((resolve, reject) => {
+    let header = null;
+    const bufs = [];
     request(opt_)
     .on('response', function(res) {
       if(res.statusCode !== 200) {
         return reject(new Error('statusCode'+res.statusCode));
       }
       header = res.headers;
+    })
+    .on('data', bufs.push.bind(bufs))
+    .on('end', function() {
+      let buf = Buffer.concat(bufs);
       switch (header['content-encoding']) {
         case 'gzip':
-          resolve(this.pipe(zlib.createGunzip()));
+          buf = zlib.unzipSync(buf);
           break;
         case 'deflate':
-          resolve(this.pipe(zlib.createInflate()));
+          buf = zlib.inflateSync(buf);
           break;
         default:
-          resolve(this);
           break;
       }
+      resolve({
+        header,
+        body: buf.toString()
+      })
     })
     .on('error', function(err) {
       reject(err);
     });
   })
-  .then((strm) => {
-    return new Promise((resolve, reject) => {
-      const bufs = [];
-      strm
-      .on('data', bufs.push.bind(bufs))
-      .on('end', function() {
-        return resolve({
-          header,
-          body: Buffer.concat(bufs).toString()
-        });
-      })
-      .on('error', function(err) {
-        reject(err);
-      });
-    });
-  });
 }
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
 module.exports()
