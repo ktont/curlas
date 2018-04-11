@@ -57,6 +57,7 @@ module.exports()
 
 ## support
 
+- url search parse
 - cookie parse
 - binary-body
 - content-type: application/x-ndjson
