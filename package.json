@@ -1,6 +1,6 @@
 {
   "name": "curlas",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "\"copy as cURL\"(chrome) revert \"cURL as request\" (nodejs bash ...)",
   "main": "index.js",
   "scripts": {
