@@ -3,6 +3,7 @@
 var fs = require('fs');
 var parseCurl = require('./thirdPart/parse-curl.js');
 var prettyBash = require('./lib/pretty.js');
+var prettyURL = require('./lib/prettyURL.js');
 var cookieModule = require('./thirdPart/cookie.js');
 var ndjson = require('./thirdPart/ndjson.js');
 
@@ -87,7 +88,12 @@ var additionFunction = [];
 var str_ = JSON.stringify(root_, null, 2);
 
 str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
-  additionVariable.push(`var url_ = "${$1}";`);
+  var u = prettyURL.parse($1);
+  if(u[0] == '`') {
+    additionRequire.push("const url = require('url');");
+    additionFunction.push(prettyURL.stringify.toString());
+  }
+  additionVariable.push(`var url_ = ${u};`);
   return '"url": url_,';
 });
 
@@ -113,7 +119,7 @@ str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
     let b = require('querystring').parse($1);  
     b = JSON.stringify(b, null, 2);
     b = _prettyJSON(b, 2);
-    additionRequire.push("const querystring = require('querystring');")
+    additionRequire.push("const querystring = require('querystring');");
     additionVariable.push(`var body_ = querystring.stringify(${b});`);
     return '"body": body_,';
   } else if(contype && contype.startsWith('application/x-ndjson')) {
