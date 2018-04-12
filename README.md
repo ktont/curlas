@@ -81,8 +81,8 @@ curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 
 - [x] sh
 - [x] nodejs
-- [] java
-- [] python
+- [ ] java
+- [ ] python
 
 
 
