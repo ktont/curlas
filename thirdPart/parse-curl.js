@@ -15,7 +15,7 @@ module.exports = exports.default = function(s) {
   var out = { method: 'GET', headers: {} };
   var state = '';
 
-  args.forEach(function(arg){
+  args.forEach(function(arg) {
     switch (true) {
       case isURL(arg):
         out.url = arg
@@ -57,7 +57,7 @@ module.exports = exports.default = function(s) {
         out.headers['Accept-Encoding'] = out.headers['Accept-Encoding'] || 'deflate, gzip'
         break;
 
-      case !!arg:
+      case arg != null:
         switch (state) {
           case 'header':
             var field = parseField(arg)
@@ -70,7 +70,7 @@ module.exports = exports.default = function(s) {
             break;
           case 'data':
             if (out.method == 'GET' || out.method == 'HEAD') out.method = 'POST'
-            out.headers['Content-Type'] = out.headers['Content-Type'] || 'application/x-www-form-urlencoded'
+            // 这里有问题，如果不是 www-encoded呢
             out.body = out.body
               ? out.body + '&' + arg
               : arg
@@ -97,7 +97,7 @@ module.exports = exports.default = function(s) {
     }
   })
 
-  return out
+  return out;
 }
 
 /**

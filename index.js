@@ -4,14 +4,20 @@ var fs = require('fs');
 var parseCurl = require('./thirdPart/parse-curl.js');
 var prettyBash = require('./lib/pretty.js');
 var prettyURL = require('./lib/prettyURL.js');
+var binaryString = require('./lib/binaryString.js');
 var cookieModule = require('./thirdPart/cookie.js');
 var ndjson = require('./thirdPart/ndjson.js');
 
 function Usage() {
   console.log(`
-  Usage: curlas ./file/name/req.sh
-    或者
-         curlas "curl http://localhost -H 'Accept-Encoding: gzip, deflate' -H 'Cookie: a=1'"
+  Usage: curlas ./req.sh
+         curlas ./req.sh --js
+         curlas ./req.sh --sh
+         curlas ./req.sh --python (future)
+         curlas ./req.sh --java   (future)
+
+$ cat ./req.sh
+curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
   `);
   process.exit(1);
 }
@@ -24,13 +30,17 @@ function _parseArgv() {
   for(var i = 0; i < args_.length; i++) {
     let a = args_[i];
     switch(a) {
-      case '--bash': 
-      case '--sh': 
+      case '--bash':
+      case '--sh':
         type = 'bash';
         break;
-      case '--javascript': 
-      case '--js': 
+      case '--javascript':
+      case '--js':
         type = 'javascript';
+        break;
+      case '--java':
+      case '--python':
+        Usage();
         break;
       default:
         _.push(a);
@@ -60,6 +70,31 @@ function _prettyArray(sp_, n) {
   }
 }
 
+function _parseCurl(curl) {
+  var origin_ = parseCurl(curl);
+  if(!origin_) Usage();
+
+  var pruned_ = JSON.parse(JSON.stringify(origin_));
+
+  if(pruned_.headers['content-type']) {
+    pruned_.headers['Content-Type'] = pruned_.headers['content-type'];
+    delete pruned_.headers['content-type'];
+  }
+  
+  if(pruned_.body != null && !pruned_.headers['Content-Type']) {
+    pruned_.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+  }
+
+  if(!Object.keys(pruned_.headers).length) {
+    delete pruned_.headers;
+  }
+  
+  //console.error('rrrrrrrr', pruned_);
+  return [pruned_, origin_];
+}
+
+///////////////////////////////////main////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 var [outputType, curl] = _parseArgv();
 
 if(!curl) Usage();
@@ -79,15 +114,19 @@ if(outputType == 'bash') {
   process.exit(0);
 }
 
-var root_ = parseCurl(curl);
+var [pruned_, origin_] = _parseCurl(curl);
 
 var additionVariable = [];
 var additionRequire = [];
 var additionFunction = [];
 
-var str_ = JSON.stringify(root_, null, 2);
+var str_ = JSON.stringify(pruned_, null, 2);
 
 str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
+  if($1.length < 22) {
+    return `"url": "${$1}",`;
+  }
+
   var u = prettyURL.parse($1);
   if(u[0] == '`') {
     additionRequire.push("const url = require('url');");
@@ -112,25 +151,46 @@ str_ = str_.replace(/"Cookie": "(.*)",?/, function(_, $1) {
 });
 
 str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
-  const contype = root_.headers["Content-Type"] ||
-                  root_.headers["content-type"];
+  if($1.length < 5) {
+    return `"body": "${$1}",`;
+  }
 
-  if(contype && contype.startsWith('application/x-www-form-urlencoded')) {
+  const contype = pruned_.headers["Content-Type"];
+  const hasUserContype = !!(origin_.headers["Content-Type"] || 
+                            origin_.headers['content-type']);
+
+  if(contype.startsWith('application/x-www-form-urlencoded') &&
+     hasUserContype) {
     let b = require('querystring').parse($1);  
     b = JSON.stringify(b, null, 2);
     b = _prettyJSON(b, 2);
     additionRequire.push("const querystring = require('querystring');");
     additionVariable.push(`var body_ = querystring.stringify(${b});`);
-    return '"body": body_,';
-  } else if(contype && contype.startsWith('application/x-ndjson')) {
+  } else if(contype.startsWith('application/x-ndjson')) {
     let b = ndjson.parse($1, 2);
     additionFunction.push(ndjson.stringify.toString());
     additionVariable.push(`var body_ = ndjsonStringify(${b});`);
-    return '"body": body_,';
+  } else if(contype.startsWith('application/json')) {
+    let b = JSON.parse(binaryString.reduce($1));
+    b = JSON.stringify(b, null, 2);
+    b = _prettyJSON(b, 2);
+    additionVariable.push(`var body_ = JSON.stringify(${b});`);
   } else {
-    additionVariable.push(`var body_ = "${$1}";`);
-    return '"body": body_,';
+    // 猜测是json
+    let b;
+    try {
+      if($1[0] !== '{' || $1[$1.length-1] !== '}') throw 'break';
+      b = JSON.parse(binaryString.reduce($1));
+      if(Object.keys(b).length < 1) throw 'break';
+      b = JSON.stringify(b, null, 2);
+      b = _prettyJSON(b, 2);
+      b=`JSON.stringify(${b})`;
+    } catch(e) {
+      b = '"'+$1+'"';
+    }
+    additionVariable.push(`var body_ = ${b};`);
   }
+  return '"body": body_,';
 });
 
 additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
@@ -177,14 +237,14 @@ module.exports = function() {
 }
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
 module.exports()
-.then((root_) => {
-  let str = root_.body.toString();
+.then((origin_) => {
+  let str = origin_.body.toString();
   if(str[0] == '{' && str[str.length-1] == '}') {
     try {
       str = JSON.stringify(JSON.parse(str), null, 4);
     } catch(e) {}
   }
-  console.log(JSON.stringify(root_.header, null, 4));
+  console.log(JSON.stringify(origin_.header, null, 4));
   console.log();
   console.log(str);
 })
