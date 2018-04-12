@@ -25,7 +25,8 @@
     "index.js",
     "package.json",
     "thirdPart",
-    "lib"
+    "lib",
+    "README.md"
   ],
   "author": "zhi.liang",
   "license": "ISC",
