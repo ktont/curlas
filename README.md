@@ -59,12 +59,17 @@ $ node index.js /tmp/1 --js | node | more
 ## Usage
 
 ```sh
-         curlas ./req.sh
+  Usage: curlas ./req.sh
          curlas ./req.sh --js
          curlas ./req.sh --sh
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
 
+
+         curlas ./req.sh --js --compressed
+                 Http defalte/gzip compress ignored by default.
+                 This parameter enable them, NOTE: Only curl command have
+                 the same parameter, it enabled. 
 $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 ```

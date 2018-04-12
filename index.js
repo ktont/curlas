@@ -9,12 +9,18 @@ var cookieModule = require('./thirdPart/cookie.js');
 var ndjson = require('./thirdPart/ndjson.js');
 
 function Usage() {
-  console.log(`
+  console.error(`
   Usage: curlas ./req.sh
          curlas ./req.sh --js
          curlas ./req.sh --sh
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
+
+         curlas ./req.sh --js --compressed
+                 Http defalte/gzip compress ignored by default.
+                 This parameter enable them, NOTE: Only curl command have
+                 the same parameter, it enabled. 
+
 
 $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
@@ -26,6 +32,7 @@ function _parseArgv() {
   var _ = [];
   var args_ = process.argv.slice(2);
   var type = 'bash';
+  var compressedFlag = false;
 
   for(var i = 0; i < args_.length; i++) {
     let a = args_[i];
@@ -42,12 +49,19 @@ function _parseArgv() {
       case '--python':
         Usage();
         break;
+      case '--compessed':
+        console.error("this is `--compressed'?");
+        process.exit(1);
+        break;
+      case '--compressed':
+      compressedFlag = true;
+        break;
       default:
         _.push(a);
         break;
     }
   }
-  return [type, _[0]];
+  return [type, _[0], compressedFlag];
 }
 
 function _prettyJSON(str, n) {
@@ -70,7 +84,7 @@ function _prettyArray(sp_, n) {
   }
 }
 
-function _parseCurl(curl) {
+function _parseCurl(curl, compressedFlag) {
   var origin_ = parseCurl(curl);
   if(!origin_) Usage();
 
@@ -85,17 +99,21 @@ function _parseCurl(curl) {
     pruned_.headers['Content-Type'] = 'application/x-www-form-urlencoded';
   }
 
+  if(!compressedFlag) {
+    delete pruned_.headers["Accept-Encoding"];
+  }
+
   if(!Object.keys(pruned_.headers).length) {
     delete pruned_.headers;
   }
-  
-  //console.error('rrrrrrrr', pruned_);
+
+  //console.error('22222222', pruned_);
   return [pruned_, origin_];
 }
 
 ///////////////////////////////////main////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
-var [outputType, curl] = _parseArgv();
+var [outputType, curl, compressedFlag] = _parseArgv();
 
 if(!curl) Usage();
 
@@ -114,7 +132,11 @@ if(outputType == 'bash') {
   process.exit(0);
 }
 
-var [pruned_, origin_] = _parseCurl(curl);
+compressedFlag = compressedFlag && curl.includes(' --compressed') ? 
+    true : 
+    false; // readable
+
+var [pruned_, origin_] = _parseCurl(curl, compressedFlag);
 
 var additionVariable = [];
 var additionRequire = [];
@@ -196,10 +218,11 @@ str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
 additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
 _prettyArray(additionVariable, 2);
 
-console.log(`const request = require('request');
-const zlib = require('zlib');
-${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
-module.exports = function() {
+function renderBody() {
+
+if(compressedFlag) {
+  additionRequire.push("const zlib = require('zlib');");
+  return `module.exports = function() {
   ${additionVariable.join('\n')}
 
   return new Promise((resolve, reject) => {
@@ -234,7 +257,32 @@ module.exports = function() {
       reject(err);
     });
   })
+}`;
 }
+return `module.exports = function() {
+  ${additionVariable.join('\n')}
+  return new Promise((resolve, reject) => {
+    request(opt_, (err, res, body) => {
+      if(err) return reject(err);
+      if(res.statusCode !== 200) {
+        return reject(new Error('statusCode'+res.statusCode));
+      }
+      return resolve({
+        header: res.headers,
+        body
+      });
+    });
+  });
+}`;
+
+}
+
+function render() {
+  const body = renderBody();
+
+console.log(`const request = require('request');
+${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
+${body}
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
 module.exports()
 .then((origin_) => {
@@ -249,3 +297,7 @@ module.exports()
   console.log(str);
 })
 .catch(console.error)`)
+  
+}
+
+render();
