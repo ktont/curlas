@@ -32,7 +32,7 @@ module.exports = function() {
     ...
 
 
-$ node index.js /tmp/1 --js | node | more
+$ curlas /tmp/1 --js | node | more
 {
     "server": "WPWS/1.0.0",
     "date": "Thu, 12 Apr 2018 12:16:29 GMT",
