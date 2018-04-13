@@ -9,8 +9,18 @@ module.exports = function(s) {
   var closeChar = '';
   var expand = false;
 
+  var escapedChar = ''; // 用来标记下一个字符是不是escaped char
+
   for(var i = 0; i < s.length; i++) {
     var char = s[i];
+    if(escapedChar) {
+      escapedChar = '';
+      arr_.push(char);
+      continue;
+    } else if(char === '\\') {
+      escapedChar = char;
+    }
+
     if(expectWord) {
       expectWord = false;
       if(char === "'" || char === '"') {
@@ -53,5 +63,7 @@ module.exports = function(s) {
       expectWord = true;
     }
   }
+
+  if(escapedChar) throw new Error('unclosed escaped char');
   return ret;
 }
