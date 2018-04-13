@@ -285,14 +285,14 @@ ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 ${body}
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
 module.exports()
-.then((origin_) => {
-  let str = origin_.body.toString();
+.then((root_) => {
+  let str = root_.body.toString();
   if(str[0] == '{' && str[str.length-1] == '}') {
     try {
       str = JSON.stringify(JSON.parse(str), null, 4);
     } catch(e) {}
   }
-  console.log(JSON.stringify(origin_.header, null, 4));
+  console.log(JSON.stringify(root_.header, null, 4));
   console.log();
   console.log(str);
 })
