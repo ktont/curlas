@@ -55,6 +55,7 @@ module.exports = function(s) {
             case 'b': return '\x08';
             case 'f': return '\x0c';
             case 't': return '\x09';
+            case 'u': return $1;
             default: return $1[1];
           }
         });
