@@ -107,7 +107,8 @@ function _parseCurl(curl, compressedFlag) {
     delete pruned_.headers;
   }
 
-  //console.error('22222222', pruned_);
+  pruned_["encoding"] = null;
+
   return [pruned_, origin_];
 }
 
@@ -259,14 +260,14 @@ if(compressedFlag) {
 return `module.exports = function() {
   ${additionVariable.join('\n')}
   return new Promise((resolve, reject) => {
-    request(opt_, (err, res, body) => {
+    request(opt_, (err, res, buff) => {
       if(err) return reject(err);
       if(res.statusCode !== 200) {
         return reject(new Error('statusCode'+res.statusCode));
       }
       return resolve({
         header: res.headers,
-        body
+        body: buff
       });
     });
   });
