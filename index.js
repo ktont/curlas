@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var parseCurl = require('./thirdPart/parse-curl.js');
 var prettyBash = require('./lib/pretty.js');
 var prettyURL = require('./lib/prettyURL.js');
 var binaryString = require('./lib/binaryString.js');
+var readShellFile = require('./lib/readShellFile.js');
+var parseCurl = require('./thirdPart/parse-curl.js');
 var cookieModule = require('./thirdPart/cookie.js');
 var ndjson = require('./thirdPart/ndjson.js');
 
@@ -118,11 +118,8 @@ var [outputType, curl, compressedFlag] = _parseArgv();
 if(!curl) Usage();
 
 if(!/^\s*curl /.test(curl)) {
-  if(fs.existsSync(curl)) {
-    curl = fs.readFileSync(curl, 'utf8');
-  } else {
-    Usage();
-  }
+  curl = readShellFile(curl);
+  if(curl == null) Usage();
 }
 
 if(outputType == 'bash') {
