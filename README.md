@@ -32,7 +32,7 @@ module.exports = function() {
     ...
 
 
-$ curlas /tmp/1 --js | node | more
+$ curlas /tmp/1 --js > /tmp/1.js; node /tmp/1.js | more
 {
     "server": "WPWS/1.0.0",
     "date": "Thu, 12 Apr 2018 12:16:29 GMT",
@@ -78,7 +78,7 @@ $ curlas /tmp/1 --js | node | more
                  timeout. 
                  NOTE: this timeout is not TCP timeout.
 
-         curlas ./req.sh --js --retry 3 (future)
+         curlas ./req.sh --js --retry 3
                  Default is 3
                  Http request, retry 3 times until success.
                  Retry break in the forlowing:

@@ -29,7 +29,7 @@ function Usage() {
                  timeout. 
                  NOTE: this timeout is not TCP timeout.
 
-         curlas ./req.sh --js --retry 3 (future)
+         curlas ./req.sh --js --retry 3
                  Default is 3
                  Http request, retry 3 times until success.
                  Retry break in the forlowing:
@@ -40,9 +40,6 @@ function Usage() {
 
 $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
-
-$ curlas ./req.sh --js | sed 's,^//,,'
-    require.main === module
 `);
   process.exit(1);
 }
@@ -58,6 +55,7 @@ function _validateRetry(n) {
   if(n == null) Usage();
   n = Number(n);
   if(isNaN(n)) Usage();
+  if(n < 0 || n > 100) Usage();
   return n;
 }
 
@@ -161,7 +159,13 @@ function _parseCurl(curl, compressedFlag) {
 
 ///////////////////////////////////main////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
-var [outputType, curl, compressedFlag, timeoutParam] = _parseArgv();
+var [
+  outputType, 
+  curl, 
+  compressedFlag, 
+  timeoutParam,
+  retryParam,
+] = _parseArgv();
 
 if(!curl) Usage();
 
@@ -332,10 +336,10 @@ return `function curlas(params) {
   });
 }
 
-module.exports = async function(params = {}, retry = 3) {
+module.exports = async function(params = {}, retry = ${retryParam}) {
   var ret = null, err = null;
   var sleep = (n) => new Promise(A => setTimeout(A, n));
-  for(var i = 0; i < retry; i++) {
+  for(var i = 0; i <= retry; i++) {
     try {
       ret = await curlas(params);
       ret.retry = i;
@@ -361,7 +365,7 @@ console.log(`const request = require('request');
 ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 ${body}
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
-//if(require.main === module) {
+if(require.main === module) {
   module.exports()
   .then((root_) => {
     let str = root_.body.toString();
@@ -375,7 +379,7 @@ ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
     console.log('retry', root_.retry, 'times');
   })
   .catch(console.error)
-//}
+}
 `)
 
 }
