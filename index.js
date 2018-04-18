@@ -304,7 +304,7 @@ if(compressedFlag) {
 }`;
 }
 
-return `function curlas() {
+return `function curlas(params) {
   ${additionVariable.join('\n')}
   return new Promise((resolve, reject) => {` + (timeoutParam ? 
 `
@@ -326,12 +326,12 @@ return `function curlas() {
   });
 }
 
-module.exports = async function(retry = 3) {
+module.exports = async function(params = {}, retry = 3) {
   var ret = null, err = null;
   var sleep = (n) => new Promise(A => setTimeout(A, n));
   for(var i = 0; i < retry; i++) {
     try {
-      ret = await curlas();
+      ret = await curlas(params);
       ret.retry = i;
       return ret;
     } catch(e) {
