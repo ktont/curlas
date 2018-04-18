@@ -17,10 +17,26 @@ function Usage() {
          curlas ./req.sh --java   (future)
 
          curlas ./req.sh --js --compressed
-                 Http defalte/gzip compress ignored by default.
-                 This parameter enable them, NOTE: Only curl command have
-                 the same parameter, it enabled. 
+                 Http defalte/gzip compress ignored by default,
+                 This parameter enable them. 
+                 NOTE: Only curl command have the same parameter, it enabled. 
+        
+         curlas ./req.sh --js --timeout 30000
+                 Default is 30000.
+                 Http request will timeout after 30000 ms.
+                 If you want disable timeout, specify 0.
+                 Although is sending data, but if is timeout, it will
+                 timeout. 
+                 NOTE: this timeout is not TCP timeout.
 
+         curlas ./req.sh --js --retry 3 (future)
+                 Default is 3
+                 Http request, retry 3 times until success.
+                 Retry break in the forlowing:
+                     status code 404
+                     http request invalid
+                     host not found
+                 
 
 $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
@@ -28,11 +44,26 @@ curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
   process.exit(1);
 }
 
+function _validateTimeout(n) {
+  if(n == null) Usage();
+  n = Number(n);
+  if(isNaN(n)) Usage();
+  return n;
+}
+
+function _validateRetry(n) {
+  if(n == null) Usage();
+  n = Number(n);
+  if(isNaN(n)) Usage();
+  return n;
+}
+
 function _parseArgv() {
   var _ = [];
   var args_ = process.argv.slice(2);
   var type = 'bash';
   var compressedFlag = false;
+  var timeout = 30000;
 
   for(var i = 0; i < args_.length; i++) {
     let a = args_[i];
@@ -54,14 +85,26 @@ function _parseArgv() {
         process.exit(1);
         break;
       case '--compressed':
-      compressedFlag = true;
+        compressedFlag = true;
+        break;
+      case '--timeout':
+        timeout = _validateTimeout(args_[i+1]);
+        break;
+      case '--retry':
+        retry = _validateRetry(args_[i+1]);
         break;
       default:
         _.push(a);
         break;
     }
   }
-  return [type, _[0], compressedFlag];
+  return [
+    type, 
+    _[0], 
+    compressedFlag, 
+    timeout, 
+    retry
+  ];
 }
 
 function _prettyJSON(str, n) {
@@ -114,7 +157,7 @@ function _parseCurl(curl, compressedFlag) {
 
 ///////////////////////////////////main////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
-var [outputType, curl, compressedFlag] = _parseArgv();
+var [outputType, curl, compressedFlag, timeoutParam] = _parseArgv();
 
 if(!curl) Usage();
 
@@ -226,7 +269,9 @@ if(compressedFlag) {
   return new Promise((resolve, reject) => {
     let header = null;
     const bufs = [];
-    request(opt_)
+` + timeoutParam ? 
+`    setTimeout(reject, ${timeoutParam}, new Error('timeout'));` : '' +
+`    request(opt_)
     .on('response', function(res) {
       if(res.statusCode !== 200) {
         return reject(new Error('statusCode'+res.statusCode));
@@ -259,7 +304,10 @@ if(compressedFlag) {
 }
 return `module.exports = function() {
   ${additionVariable.join('\n')}
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {` + (timeoutParam ? 
+`
+    setTimeout(reject, ${timeoutParam}, new Error('timeout'));` : '') +
+`
     request(opt_, (err, res, buff) => {
       if(err) return reject(err);
       if(res.statusCode !== 200) {
@@ -282,19 +330,19 @@ console.log(`const request = require('request');
 ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 ${body}
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
-module.exports()
-.then((root_) => {
-  let str = root_.body.toString();
-  if(str[0] == '{' && str[str.length-1] == '}') {
+if(require.main === module) {
+  module.exports()
+  .then((root_) => {
+    let str = root_.body.toString();
     try {
       str = JSON.stringify(JSON.parse(str), null, 4);
     } catch(e) {}
-  }
-  console.log(JSON.stringify(root_.header, null, 4));
-  console.log();
-  console.log(str);
-})
-.catch(console.error)`)
+    console.log(JSON.stringify(root_.header, null, 4));
+    console.log();
+    console.log(str);
+  })
+  .catch(console.error)
+}`)
   
 }
 

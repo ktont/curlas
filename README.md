@@ -65,12 +65,32 @@ $ curlas /tmp/1 --js | node | more
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
 
-
          curlas ./req.sh --js --compressed
-                 Http defalte/gzip compress ignored by default.
-                 This parameter enable them, NOTE: Only curl command have
-                 the same parameter, it enabled. 
+                 Http defalte/gzip compress ignored by default,
+                 This parameter enable them. 
+                 NOTE: Only curl command have the same parameter, it enabled. 
+        
+         curlas ./req.sh --js --timeout 30000
+                 Default is 30000.
+                 Http request will timeout after 30000 ms.
+                 If you want disable timeout, specify 0.
+                 Although is sending data, but if is timeout, it will
+                 timeout. 
+                 NOTE: this timeout is not TCP timeout.
+
+         curlas ./req.sh --js --retry 3 (future)
+                 Default is 3
+                 Http request, retry 3 times until success.
+                 Retry break in the forlowing:
+                     status code 404
+                     http request invalid
+                     host not found
+                 
 $ cat ./req.sh
+# comment line 1
+# curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
+
+# comment line 3
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 ```
 
