@@ -25,7 +25,7 @@ function Usage() {
                  Default is 30000.
                  Http request will timeout after 30000 ms.
                  If you want disable timeout, specify 0.
-                 Although is sending data, but if is timeout, it will
+                 Although is sending data, if is timeout, it will
                  timeout. 
                  NOTE: this timeout is not TCP timeout.
 
@@ -271,7 +271,7 @@ if(compressedFlag) {
     let header = null;
     const bufs = [];
 ` + timeoutParam ? 
-`    setTimeout(reject, ${timeoutParam}, new Error('timeout'));` : '' +
+`    var tm_ = setTimeout(reject, ${timeoutParam}, new Error('timeout'));` : '' +
 `    request(opt_)
     .on('response', function(res) {
       if(res.statusCode !== 200) {
@@ -307,9 +307,12 @@ return `module.exports = function() {
   ${additionVariable.join('\n')}
   return new Promise((resolve, reject) => {` + (timeoutParam ? 
 `
-    setTimeout(reject, ${timeoutParam}, new Error('timeout'));` : '') +
+    var tm = setTimeout(reject, ${timeoutParam}, new Error('timeout'));` : '') +
 `
-    request(opt_, (err, res, buff) => {
+    request(opt_, (err, res, buff) => {` + (timeoutParam ? 
+`
+      clearTimeout(tm);` : '') +
+`
       if(err) return reject(err);
       if(res.statusCode !== 200) {
         return reject(new Error('statusCode'+res.statusCode));
@@ -331,7 +334,7 @@ console.log(`const request = require('request');
 ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 ${body}
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
-if(require.main === module) {
+// if(require.main === module) {
   module.exports()
   .then((root_) => {
     let str = root_.body.toString();
@@ -343,7 +346,8 @@ if(require.main === module) {
     console.log(str);
   })
   .catch(console.error)
-}`)
+// }
+`)
   
 }
 
