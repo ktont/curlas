@@ -94,6 +94,26 @@ $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 ```
 
+## Record Macro
+![](_img/2.png)
+
+```
+$ cat ./req.sh
+# get session
+# curl http://get/token -H 'A: 1' -H 'B: 2'
+
+# get captcha
+# curl http://get/captcah -H 'A: 1' -H 'B: 2'
+
+# login
+curl http://login -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
+
+$ curlas ./req.sh --js
+```
+
+## Alter
+![](_img/1.png)
+
 ## Support function
 
 - url search parse
