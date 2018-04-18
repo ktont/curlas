@@ -40,7 +40,10 @@ function Usage() {
 
 $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
-  `);
+
+$ curlas ./req.sh --js | sed 's,^// ,,'
+    require.main === module
+`);
   process.exit(1);
 }
 
