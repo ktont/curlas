@@ -303,7 +303,8 @@ if(compressedFlag) {
   })
 }`;
 }
-return `module.exports = function() {
+
+return `function curlas() {
   ${additionVariable.join('\n')}
   return new Promise((resolve, reject) => {` + (timeoutParam ? 
 `
@@ -323,7 +324,27 @@ return `module.exports = function() {
       });
     });
   });
-}`;
+}
+
+module.exports = async function(retry = 3) {
+  var ret = null, err = null;
+  var sleep = (n) => new Promise(A => setTimeout(A, n));
+  for(var i = 0; i < retry; i++) {
+    try {
+      ret = await curlas();
+      ret.retry = i;
+      return ret;
+    } catch(e) {
+      err = e;
+      if(/statusCode4[0-9][0-9]/.test(e.message)) 
+        break;
+      if(e.message !== 'timeout')
+        await sleep(i*100);
+    }
+  }
+  throw err;
+}
+`;
 
 }
 
@@ -344,11 +365,13 @@ ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
     console.log(JSON.stringify(root_.header, null, 4));
     console.log();
     console.log(str);
+    console.log();
+    console.log('retry', root_.retry, 'times');
   })
   .catch(console.error)
 // }
 `)
-  
+
 }
 
 render();
