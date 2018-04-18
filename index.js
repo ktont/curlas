@@ -41,7 +41,7 @@ function Usage() {
 $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 
-$ curlas ./req.sh --js | sed 's,^// ,,'
+$ curlas ./req.sh --js | sed 's,^//,,'
     require.main === module
 `);
   process.exit(1);
@@ -195,11 +195,14 @@ str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
   }
 
   var u = prettyURL.parse($1);
-  if(u[0] == '`') {
+  if(u.query) {
     additionRequire.push("const url = require('url');");
     additionFunction.push(prettyURL.stringify.toString());
+    additionVariable.push(`var query_ = ${u.query};`);
+    additionVariable.push(`var url_ = ${u.url};`);
+  } else {
+    additionVariable.push(`var url_ = ${u};`);
   }
-  additionVariable.push(`var url_ = ${u};`);
   return '"url": url_,';
 });
 
@@ -358,7 +361,7 @@ console.log(`const request = require('request');
 ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 ${body}
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
-// if(require.main === module) {
+//if(require.main === module) {
   module.exports()
   .then((root_) => {
     let str = root_.body.toString();
@@ -372,7 +375,7 @@ ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
     console.log('retry', root_.retry, 'times');
   })
   .catch(console.error)
-// }
+//}
 `)
 
 }
