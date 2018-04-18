@@ -64,6 +64,7 @@ function _parseArgv() {
   var type = 'bash';
   var compressedFlag = false;
   var timeout = 30000;
+  var retry = 3;
 
   for(var i = 0; i < args_.length; i++) {
     let a = args_[i];
