@@ -205,7 +205,7 @@ str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
     additionVariable.push(`var query_ = ${u.query};`);
     additionVariable.push(`var url_ = ${u.url};`);
   } else {
-    additionVariable.push(`var url_ = ${u};`);
+    additionVariable.push(`var url_ = ${u.url};`);
   }
   return '"url": url_,';
 });
