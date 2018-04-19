@@ -353,8 +353,7 @@ module.exports = async function(params = {}, retry = ${retryParam}) {
     }
   }
   throw err;
-}
-`;
+}`;
 
 }
 

@@ -29,7 +29,12 @@ module.exports = function(s) {
       } else if(char === '$') {
         expectWord = true;
         expand = true;
-        continue; //注意：这里$的含义是替换后面的转义
+        continue; 
+        /*
+        注意：这里 $'' 的含义是一种 quoting，会对字符串中的blackslash转义
+        echo $'aaa\nbbb'
+        echo 'aaa\nbbb'
+        */
       }
     }
 
@@ -55,7 +60,8 @@ module.exports = function(s) {
             case 'b': return '\x08';
             case 'f': return '\x0c';
             case 't': return '\x09';
-            case 'u': return $1;
+            case 'u':
+            case 'x': return $1;
             default: return $1[1];
           }
         });
