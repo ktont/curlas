@@ -92,7 +92,7 @@ curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 ```
 
 
-## Chrome
+## Chrome or Charles
 ![](_img/1.png)
 
 ## Record Macro
