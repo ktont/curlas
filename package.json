@@ -11,11 +11,12 @@
     "url": "git+https://github.com/ktont/curlas.git"
   },
   "keywords": [
-    "parse-curl",
     "curl",
     "request",
     "spider",
-    "js spider",
+    "node spider",
+    "nodejs spider",
+    "node.js spider",
     "jspider"
   ],
   "bin": {
