@@ -53,9 +53,6 @@ $ curlas /tmp/1 --js > /tmp/1.js; node /tmp/1.js | more
         ....
 ```
 
-## Chrome
-![](_img/1.png)
-
 ## Usage
 
 ```sh
@@ -74,9 +71,9 @@ $ curlas /tmp/1 --js > /tmp/1.js; node /tmp/1.js | more
                  Default is 30000.
                  Http request will timeout after 30000 ms.
                  If you want disable timeout, specify 0.
-                 Although is sending data, but if is timeout, it will
-                 timeout. 
-                 NOTE: this timeout is not TCP timeout.
+                 If is timeout, it timeout then req.end then finish, 
+                 although maybe is sending data.
+                 NOTE: this timeout is not TCP active timeout.
 
          curlas ./req.sh --js --retry 3
                  Default is 3
@@ -94,9 +91,14 @@ $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 ```
 
+
+## Chrome
+![](_img/1.png)
+
 ## Record Macro
 ![](_img/2.png)
 
+## Translate It
 ```
 $ cat ./req.sh
 # get session
