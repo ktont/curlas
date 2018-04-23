@@ -92,10 +92,10 @@ curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 ```
 
 
-## Chrome or Charles
+## Chrome or Charles Network Capture
 ![](_img/1.png)
 
-## Record Macro
+## Records
 ![](_img/2.png)
 
 ## Translate It
