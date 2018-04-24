@@ -32,7 +32,7 @@ module.exports = function() {
     ...
 
 
-$ curlas /tmp/1 --js > /tmp/1.js; node /tmp/1.js | more
+$ curlas /tmp/1 --js | node | more
 {
     "server": "WPWS/1.0.0",
     "date": "Thu, 12 Apr 2018 12:16:29 GMT",
@@ -62,11 +62,11 @@ $ curlas /tmp/1 --js > /tmp/1.js; node /tmp/1.js | more
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
 
-         curlas ./req.sh --js --compressed
-                 Http defalte/gzip compress ignored by default,
-                 This parameter enable them. 
-                 NOTE: Only curl command have the same parameter, it enabled. 
-        
+         curlas ./req.sh --js --output /tmp/req.js
+         curlas ./req.sh --js -o /tmp/req.js
+                 write output to /tmp/req.sh
+                 feature: require.main === module
+
          curlas ./req.sh --js --timeout 30000
                  Default is 30000.
                  Http request will timeout after 30000 ms.
@@ -82,7 +82,12 @@ $ curlas /tmp/1 --js > /tmp/1.js; node /tmp/1.js | more
                      status code 404
                      http request invalid
                      host not found
-                 
+
+         curlas ./req.sh --js --compressed
+                 Http defalte/gzip compress ignored by default,
+                 This parameter enable them. 
+                 NOTE: Only curl command have the same parameter, it enabled. 
+        
 $ cat ./req.sh
 # comment line 1
 # curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'

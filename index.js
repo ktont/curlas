@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var fs = require('fs');
 var prettyBash = require('./lib/pretty.js');
 var prettyURL = require('./lib/prettyURL.js');
 var binaryString = require('./lib/binaryString.js');
@@ -16,11 +17,11 @@ function Usage() {
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
 
-         curlas ./req.sh --js --compressed
-                 Http defalte/gzip compress ignored by default,
-                 This parameter enable them. 
-                 NOTE: Only curl command have the same parameter, it enabled. 
-        
+         curlas ./req.sh --js --output /tmp/req.js
+         curlas ./req.sh --js -o /tmp/req.js
+                 write output to /tmp/req.sh
+                 feature: require.main === module
+
          curlas ./req.sh --js --timeout 30000
                  Default is 30000.
                  Http request will timeout after 30000 ms.
@@ -59,6 +60,12 @@ function _validateRetry(n) {
   return n;
 }
 
+function _validateOutput(fname) {
+  if(!fname) Usage();
+  if(fname[0] == '-') Usage();
+  return fname;
+}
+
 function _parseArgv() {
   var _ = [];
   var args_ = process.argv.slice(2);
@@ -66,6 +73,7 @@ function _parseArgv() {
   var compressedFlag = false;
   var timeout = 30000;
   var retry = 3;
+  var output = '';
 
   for(var i = 0; i < args_.length; i++) {
     let a = args_[i];
@@ -90,11 +98,20 @@ function _parseArgv() {
         compressedFlag = true;
         break;
       case '--timeout':
-        timeout = _validateTimeout(args_[i+1]);
+        timeout = _validateTimeout(args_[++i]);
         break;
       case '--retry':
-        retry = _validateRetry(args_[i+1]);
+        retry = _validateRetry(args_[++i]);
         break;
+      case '--output':
+      case '-o':
+        output = _validateOutput(args_[++i]);
+        break;
+      case '--version':
+      case '-v':
+        console.log('curlas', require('./package.json').version);
+        console.log('Features: retry, timeout, javascript')
+        process.exit(0);
       default:
         _.push(a);
         break;
@@ -105,7 +122,8 @@ function _parseArgv() {
     _[0], 
     compressedFlag, 
     timeout, 
-    retry
+    retry,
+    output
   ];
 }
 
@@ -165,6 +183,7 @@ var [
   compressedFlag, 
   timeoutParam,
   retryParam,
+  outputParam,
 ] = _parseArgv();
 
 if(!curl) Usage();
@@ -357,14 +376,9 @@ module.exports = async function(params = {}, retry = ${retryParam}) {
 
 }
 
-function render() {
-  const body = renderBody();
-
-console.log(`const request = require('request');
-${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
-${body}
-${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
-if(require.main === module) {
+function renderFooter() {
+  if(outputParam) {
+return `if(require.main === module) {
   module.exports()
   .then((root_) => {
     let str = root_.body.toString();
@@ -379,8 +393,41 @@ if(require.main === module) {
   })
   .catch(console.error)
 }
-`)
+`
+  } else {
+return `module.exports()
+.then((root_) => {
+  let str = root_.body.toString();
+  try {
+    str = JSON.stringify(JSON.parse(str), null, 4);
+  } catch(e) {}
+  console.log(JSON.stringify(root_.header, null, 4));
+  console.log();
+  console.log(str);
+  console.log();
+  console.log('retry', root_.retry, 'times');
+})
+.catch(console.error)
+`
+  }
+}
+
+function render() {
+  const body = renderBody();
+  const footer = renderFooter();
+
+return `const request = require('request');
+${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
+${body}
+${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
+${footer}
+`;
 
 }
 
-render();
+
+if(outputParam) {
+  fs.writeFileSync(outputParam, render());
+} else {
+  process.stdout.write(render());
+}
