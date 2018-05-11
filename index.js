@@ -70,7 +70,7 @@ function _parseArgv() {
   var _ = [];
   var args_ = process.argv.slice(2);
   var type = 'bash';
-  var compressedFlag = false;
+  var compressedFlag = true;
   var timeout = 30000;
   var retry = 3;
   var output = '';
@@ -90,12 +90,13 @@ function _parseArgv() {
       case '--python':
         Usage();
         break;
-      case '--compessed':
+      case '--nocompessed':
         console.error("this is `--compressed'?");
         process.exit(1);
         break;
-      case '--compressed':
-        compressedFlag = true;
+      case '--nogzip':
+      case '--nocompressed':
+        compressedFlag = false;
         break;
       case '--timeout':
         timeout = _validateTimeout(args_[++i]);
@@ -162,8 +163,8 @@ function _parseCurl(curl, compressedFlag) {
     pruned_.headers['Content-Type'] = 'application/x-www-form-urlencoded';
   }
 
-  if(!compressedFlag) {
-    delete pruned_.headers["Accept-Encoding"];
+  if(compressedFlag) {
+    pruned_["gzip"] = true;
   }
 
   if(!Object.keys(pruned_.headers).length) {
@@ -290,48 +291,6 @@ additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
 _prettyArray(additionVariable, 2);
 
 function renderBody() {
-
-if(compressedFlag) {
-  additionRequire.push("const zlib = require('zlib');");
-  return `module.exports = function() {
-  ${additionVariable.join('\n')}
-
-  return new Promise((resolve, reject) => {
-    let header = null;
-    const bufs = [];
-` + timeoutParam ? 
-`    var tm_ = setTimeout(reject, ${timeoutParam}, new Error('timeout'));` : '' +
-`    request(opt_)
-    .on('response', function(res) {
-      if(res.statusCode !== 200) {
-        return reject(new Error('statusCode'+res.statusCode));
-      }
-      header = res.headers;
-    })
-    .on('data', bufs.push.bind(bufs))
-    .on('end', function() {
-      let buf = Buffer.concat(bufs);
-      switch (header['content-encoding']) {
-        case 'gzip':
-          buf = zlib.unzipSync(buf);
-          break;
-        case 'deflate':
-          buf = zlib.inflateSync(buf);
-          break;
-        default:
-          break;
-      }
-      resolve({
-        header,
-        body: buf
-      })
-    })
-    .on('error', function(err) {
-      reject(err);
-    });
-  })
-}`;
-}
 
 return `function curlas(params) {
   ${additionVariable.join('\n')}

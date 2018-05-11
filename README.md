@@ -83,9 +83,9 @@ $ curlas /tmp/1 --js | node | more
                      http request invalid
                      host not found
 
-         curlas ./req.sh --js --compressed
-                 Http defalte/gzip compress ignored by default,
-                 This parameter enable them. 
+         curlas ./req.sh --js --nogzip
+                 Disable http deflate/gzip compress.
+                 You may get a deflate/gzip stream.
                  NOTE: Only curl command have the same parameter, it enabled. 
         
 $ cat ./req.sh
