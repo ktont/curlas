@@ -230,17 +230,17 @@ str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
   return '"url": url_,';
 });
 
-str_ = str_.replace(/"Cookie": "(.*)",?/, function(_, $1) {
+str_ = str_.replace(/"([Cc]ookie)": "(.*)",?/, function(_, key, $1) {
   if($1.length > 50) {
     let c = cookieModule.parse($1);
     c = JSON.stringify(c, null, 2);
     c = _prettyJSON(c, 2);
     additionFunction.push(cookieModule.stringify.toString());
     additionVariable.push(`var cookie_ = cookieStringify(${c});`);
-    return '"Cookie": cookie_,';
+    return `"${key}": cookie_,`;
   } else {
     additionVariable.push(`var cookie_ = "${$1}";`);
-    return '"Cookie": cookie_,';
+    return `"${key}": cookie_,`;
   }
 });
 
