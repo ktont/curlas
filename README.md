@@ -83,12 +83,7 @@ curlas /tmp/1 --js > ./curlas/_getList.js
          curlas ./req.sh --sh
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
-
-         curlas ./req.sh --js --output /tmp/req.js
-         curlas ./req.sh --js -o /tmp/req.js
-                 write output to /tmp/req.sh
-                 feature: require.main === module
-
+         
          curlas ./req.sh --js --timeout 30000
                  Default is 30000.
                  Http request will timeout after 30000 ms.
