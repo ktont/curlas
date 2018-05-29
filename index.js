@@ -5,6 +5,7 @@ var prettyBash = require('./lib/pretty.js');
 var prettyURL = require('./lib/prettyURL.js');
 var binaryString = require('./lib/binaryString.js');
 var readShellFile = require('./lib/readShellFile.js');
+var misc = require('./lib/misc.js');
 var parseCurl = require('./thirdPart/parse-curl.js');
 var cookieModule = require('./thirdPart/cookie.js');
 var ndjson = require('./thirdPart/ndjson.js');
@@ -331,7 +332,7 @@ module.exports = async function(params = {}, retry = ${retryParam}) {
 }
 
 function renderFooter() {
-  if(!process.stdout.isTTY || outputParam) {
+  if(!misc.istty() || outputParam) {
 return `if(require.main === module) {
   module.exports()
   .then((root_) => {
