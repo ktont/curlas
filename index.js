@@ -332,7 +332,7 @@ module.exports = async function(params = {}, retry = ${retryParam}) {
 }
 
 function renderFooter() {
-  if(!misc.istty() || outputParam) {
+  if(misc.isRedirect() || outputParam) {
 return `if(require.main === module) {
   module.exports()
   .then((root_) => {
