@@ -17,11 +17,6 @@ function Usage() {
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
 
-         curlas ./req.sh --js --output /tmp/req.js
-         curlas ./req.sh --js -o /tmp/req.js
-                 write output to /tmp/req.sh
-                 feature: require.main === module
-
          curlas ./req.sh --js --timeout 30000
                  Default is 30000.
                  Http request will timeout after 30000 ms.
@@ -336,7 +331,7 @@ module.exports = async function(params = {}, retry = ${retryParam}) {
 }
 
 function renderFooter() {
-  if(outputParam) {
+  if(!process.stdout.isTTY || outputParam) {
 return `if(require.main === module) {
   module.exports()
   .then((root_) => {

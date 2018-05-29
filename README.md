@@ -6,11 +6,19 @@ npm install -g curlas
 
 ## Express
 
-```
-$ cat /tmp/1
-curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -H 'content-type: json' -d '{"a":1,"b":2}'
+Run following in bash
 
-$ curlas /tmp/1 --js
+```bash
+cat <<EOF > /tmp/1
+curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -H 'content-type: json' -d '{"a":1,"b":2}'
+EOF
+
+curlas /tmp/1 --js
+```
+
+The output is a javascript module
+
+```js
 module.exports = function() {
   var body_ = JSON.stringify({
     "a": 1,
@@ -30,9 +38,17 @@ module.exports = function() {
   return new Promise((resolve, reject) => {
     request(opt_)
     ...
+```
 
+Your can run it directly.
 
-$ curlas /tmp/1 --js | node | more
+```bash
+curlas /tmp/1 --js | node | more
+```
+
+It pretty output json auto.
+
+```json
 {
     "server": "WPWS/1.0.0",
     "date": "Thu, 12 Apr 2018 12:16:29 GMT",
@@ -51,6 +67,12 @@ $ curlas /tmp/1 --js | node | more
             "device": 5677543,
         }
         ....
+```
+
+Or save it as a module, put into your spider project.
+
+```bash
+curlas /tmp/1 --js > ./curlas/_getList.js
 ```
 
 ## Usage

@@ -1,6 +1,6 @@
 {
   "name": "curlas",
-  "version": "4.2.2",
+  "version": "4.3.0",
   "description": "nodejs spider tool",
   "main": "index.js",
   "scripts": {
@@ -35,5 +35,7 @@
     "url": "https://github.com/ktont/curlas/issues"
   },
   "homepage": "https://github.com/ktont/curlas#readme",
-  "dependencies": {}
+  "dependencies": {
+    "request": "*"
+  }
 }
