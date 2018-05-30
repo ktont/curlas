@@ -50,14 +50,13 @@ Your can run it directly.
 
 ```bash
 cat <<"EOF" | curlas --js | node | more
-curl http://localhost:8000 \
--H 'Content-Type: json' \
--H 'cookie: tk=abcd' \
--d '{"foo":"bar"}'
+curl 'http://google.com/' -H 'Upgrade-Insecure-Requests: 1' \
+-H 'User-Agent: Safari/537.36' -H 'X-DevTools-Emulate-Network-Conditions-Client-Id: \
+1CC52EDD123227D4963363DF922B8CE8' --compressed
 EOF
 ```
 
-It pretty output json auto.
+It pretty output auto.
 
 ```json
 {
@@ -83,7 +82,7 @@ It pretty output json auto.
 Or save it as a module, put into your spider project.
 
 ```bash
-cat <<"EOF" | curlas --js  > ./curlas/_getList.js
+cat <<"EOF" | curlas --js  > ./_getList.js
 curl http://localhost:8000 \
 -H 'Content-Type: json' \
 -H 'cookie: tk=abcd' \
