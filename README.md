@@ -9,41 +9,50 @@ npm install -g curlas
 Run following in bash
 
 ```bash
-cat <<EOF > /tmp/1
-curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -H 'content-type: json' -d '{"a":1,"b":2}'
+cat <<"EOF" | curlas --js 
+curl http://localhost:8000 \
+-H 'Content-Type: json' \
+-H 'cookie: tk=abcd' \
+-d '{"foo":"bar"}'
 EOF
-
-curlas /tmp/1 --js
 ```
 
 The output is a javascript module
 
 ```js
-module.exports = function() {
+function curlas(params) {
+  var cookie_ = "tk=abcd";
   var body_ = JSON.stringify({
-    "a": 1,
-    "b": 2
+    "foo": "bar"
   });
   var opt_ = {
     "method": "POST",
     "headers": {
-      "A": "1",
-      "B": "2",
+      "cookie": cookie_,
       "Content-Type": "json"
     },
-    "url": "http://localhost:3333",
+    "url": "http://localhost:8000",
     "body": body_,
+    "encoding": null
   };
-
   return new Promise((resolve, reject) => {
-    request(opt_)
+    var tm = setTimeout(reject, 30000, new Error('timeout'));
+    request(opt_, (err, res, buff) => {
     ...
+    }
+  }
+}
 ```
 
 Your can run it directly.
 
 ```bash
-curlas /tmp/1 --js | node | more
+cat <<"EOF" | curlas --js | node | more
+curl http://localhost:8000 \
+-H 'Content-Type: json' \
+-H 'cookie: tk=abcd' \
+-d '{"foo":"bar"}'
+EOF
 ```
 
 It pretty output json auto.
@@ -72,7 +81,12 @@ It pretty output json auto.
 Or save it as a module, put into your spider project.
 
 ```bash
-curlas /tmp/1 --js > ./curlas/_getList.js
+cat <<"EOF" | curlas --js  > ./curlas/_getList.js
+curl http://localhost:8000 \
+-H 'Content-Type: json' \
+-H 'cookie: tk=abcd' \
+-d '{"foo":"bar"}'
+EOF
 ```
 
 ## Usage
@@ -107,10 +121,10 @@ curlas /tmp/1 --js > ./curlas/_getList.js
         
 $ cat ./req.sh
 # comment line 1
-# curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
+# curl http://localhost:8000 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 
 # comment line 3
-curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
+curl http://localhost:8000 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
 ```
 
 

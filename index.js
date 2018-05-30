@@ -174,119 +174,119 @@ function _parseCurl(curl, compressedFlag) {
 
 ///////////////////////////////////main////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
-var [
-  outputType, 
-  curl, 
-  compressedFlag, 
-  timeoutParam,
-  retryParam,
-  outputParam,
-] = _parseArgv();
+async function __runrun() {
+  var [
+    outputType, 
+    curl, 
+    compressedFlag, 
+    timeoutParam,
+    retryParam,
+    outputParam,
+  ] = _parseArgv();
 
-if(!curl) Usage();
-
-if(!/^\s*curl /.test(curl)) {
-  curl = readShellFile(curl);
-  if(curl == null) Usage();
-}
-
-if(outputType == 'bash') {
-  console.log();
-  console.log(prettyBash(curl));
-  console.log();
-  process.exit(0);
-}
-
-compressedFlag = compressedFlag && curl.includes(' --compressed') ? 
-    true : 
-    false; // readable
-
-var [pruned_, origin_] = _parseCurl(curl, compressedFlag);
-
-var additionVariable = [];
-var additionRequire = [];
-var additionFunction = [];
-
-var str_ = JSON.stringify(pruned_, null, 2);
-
-str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
-  if($1.length < 22) {
-    return `"url": "${$1}",`;
+  curl = await readShellFile(curl);
+  if(!curl) {
+    console.error('no input');
+    process.exit(1);
   }
 
-  var u = prettyURL.parse($1);
-  if(u.query) {
-    additionRequire.push("const url = require('url');");
-    additionFunction.push(prettyURL.stringify.toString());
-    additionVariable.push(`var query_ = ${u.query};`);
-    additionVariable.push(`var url_ = ${u.url};`);
-  } else {
-    additionVariable.push(`var url_ = ${u.url};`);
-  }
-  return '"url": url_,';
-});
-
-str_ = str_.replace(/"([Cc]ookie)": "(.*)",?/, function(_, key, $1) {
-  if($1.length > 50) {
-    let c = cookieModule.parse($1);
-    c = JSON.stringify(c, null, 2);
-    c = _prettyJSON(c, 2);
-    additionFunction.push(cookieModule.stringify.toString());
-    additionVariable.push(`var cookie_ = cookieStringify(${c});`);
-    return `"${key}": cookie_,`;
-  } else {
-    additionVariable.push(`var cookie_ = "${$1}";`);
-    return `"${key}": cookie_,`;
-  }
-});
-
-str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
-  if($1.length < 5) {
-    return `"body": "${$1}",`;
+  if(outputType == 'bash') {
+    console.log();
+    console.log(prettyBash(curl));
+    console.log();
+    process.exit(0);
   }
 
-  const contype = pruned_.headers["Content-Type"];
-  const hasUserContype = !!(origin_.headers["Content-Type"] || 
-                            origin_.headers['content-type']);
+  compressedFlag = compressedFlag && curl.includes(' --compressed') ? 
+      true : 
+      false; // readable
 
-  if(contype.startsWith('application/x-www-form-urlencoded') &&
-     hasUserContype) {
-    let b = require('querystring').parse($1);  
-    b = JSON.stringify(b, null, 2);
-    b = _prettyJSON(b, 2);
-    additionRequire.push("const querystring = require('querystring');");
-    additionVariable.push(`var body_ = querystring.stringify(${b});`);
-  } else if(contype.startsWith('application/x-ndjson')) {
-    let b = ndjson.parse($1, 2);
-    additionFunction.push(ndjson.stringify.toString());
-    additionVariable.push(`var body_ = ndjsonStringify(${b});`);
-  } else if(contype.startsWith('application/json')) {
-    let b = JSON.parse(binaryString.reduce($1));
-    b = JSON.stringify(b, null, 2);
-    b = _prettyJSON(b, 2);
-    additionVariable.push(`var body_ = JSON.stringify(${b});`);
-  } else {
-    // 猜测是json
-    let b;
-    try {
-      if($1[0] !== '{' || $1[$1.length-1] !== '}') throw 'break';
-      b = JSON.parse(binaryString.reduce($1));
-      if(Object.keys(b).length < 1) throw 'break';
+  var [pruned_, origin_] = _parseCurl(curl, compressedFlag);
+
+  var additionVariable = [];
+  var additionRequire = [];
+  var additionFunction = [];
+
+  var str_ = JSON.stringify(pruned_, null, 2);
+
+  str_ = str_.replace(/"url": "(.*)",?/, function(_, $1) {
+    if($1.length < 22) {
+      return `"url": "${$1}",`;
+    }
+
+    var u = prettyURL.parse($1);
+    if(u.query) {
+      additionRequire.push("const url = require('url');");
+      additionFunction.push(prettyURL.stringify.toString());
+      additionVariable.push(`var query_ = ${u.query};`);
+      additionVariable.push(`var url_ = ${u.url};`);
+    } else {
+      additionVariable.push(`var url_ = ${u.url};`);
+    }
+    return '"url": url_,';
+  });
+
+  str_ = str_.replace(/"([Cc]ookie)": "(.*)",?/, function(_, key, $1) {
+    if($1.length > 50) {
+      let c = cookieModule.parse($1);
+      c = JSON.stringify(c, null, 2);
+      c = _prettyJSON(c, 2);
+      additionFunction.push(cookieModule.stringify.toString());
+      additionVariable.push(`var cookie_ = cookieStringify(${c});`);
+      return `"${key}": cookie_,`;
+    } else {
+      additionVariable.push(`var cookie_ = "${$1}";`);
+      return `"${key}": cookie_,`;
+    }
+  });
+
+  str_ = str_.replace(/"body": "(.*)",?/, function(_, $1) {
+    if($1.length < 5) {
+      return `"body": "${$1}",`;
+    }
+
+    const contype = pruned_.headers["Content-Type"];
+    const hasUserContype = !!(origin_.headers["Content-Type"] || 
+                              origin_.headers['content-type']);
+
+    if(contype.startsWith('application/x-www-form-urlencoded') &&
+      hasUserContype) {
+      let b = require('querystring').parse($1);  
       b = JSON.stringify(b, null, 2);
       b = _prettyJSON(b, 2);
-      b=`JSON.stringify(${b})`;
-    } catch(e) {
-      b = '"'+$1+'"';
+      additionRequire.push("const querystring = require('querystring');");
+      additionVariable.push(`var body_ = querystring.stringify(${b});`);
+    } else if(contype.startsWith('application/x-ndjson')) {
+      let b = ndjson.parse($1, 2);
+      additionFunction.push(ndjson.stringify.toString());
+      additionVariable.push(`var body_ = ndjsonStringify(${b});`);
+    } else if(contype.startsWith('application/json')) {
+      let b = JSON.parse(binaryString.reduce($1));
+      b = JSON.stringify(b, null, 2);
+      b = _prettyJSON(b, 2);
+      additionVariable.push(`var body_ = JSON.stringify(${b});`);
+    } else {
+      // 猜测是json
+      let b;
+      try {
+        if($1[0] !== '{' || $1[$1.length-1] !== '}') throw 'break';
+        b = JSON.parse(binaryString.reduce($1));
+        if(Object.keys(b).length < 1) throw 'break';
+        b = JSON.stringify(b, null, 2);
+        b = _prettyJSON(b, 2);
+        b=`JSON.stringify(${b})`;
+      } catch(e) {
+        b = '"'+$1+'"';
+      }
+      additionVariable.push(`var body_ = ${b};`);
     }
-    additionVariable.push(`var body_ = ${b};`);
-  }
-  return '"body": body_,';
-});
+    return '"body": body_,';
+  });
 
-additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
-_prettyArray(additionVariable, 2);
+  additionVariable.push(`var opt_ = ${_prettyJSON(str_, 2)};`);
+  _prettyArray(additionVariable, 2);
 
-function renderBody() {
+  function renderBody() {
 
 return `function curlas(params) {
   ${additionVariable.join('\n')}
@@ -329,10 +329,10 @@ module.exports = async function(params = {}, retry = ${retryParam}) {
   throw err;
 }`;
 
-}
+  }
 
-function renderFooter() {
-  if(misc.isRedirect() || outputParam) {
+  function renderFooter() {
+    if(misc.isRedirect() || outputParam) {
 return `if(require.main === module) {
   module.exports()
   .then((root_) => {
@@ -364,25 +364,31 @@ return `module.exports()
 })
 .catch(console.error)
 `
+    }
   }
-}
 
-function render() {
-  const body = renderBody();
-  const footer = renderFooter();
+  function render() {
+    const body = renderBody();
+    const footer = renderFooter();
 
-return `const request = require('request');
+  return `const request = require('request');
 ${additionRequire.length ? additionRequire.join('\n')+'\n' : ''}
 ${body}
 ${additionFunction.length ? '\n'+additionFunction.join('\n\n')+'\n' : ''}
 ${footer}
-`;
+  `;
 
+  }
+
+
+  if(outputParam) {
+    fs.writeFileSync(outputParam, render());
+  } else {
+    process.stdout.write(render());
+  }
 }
 
-
-if(outputParam) {
-  fs.writeFileSync(outputParam, render());
-} else {
-  process.stdout.write(render());
-}
+__runrun()
+.catch(e => {
+  console.error(e);
+});
