@@ -1,5 +1,7 @@
 # curlas
 
+a web spider tool
+
 ## npm install -g curlas
 
 npm install -g curlas
