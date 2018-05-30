@@ -46,7 +46,7 @@ function curlas(params) {
 }
 ```
 
-Your can run it directly.
+You can run it directly.
 
 ```bash
 cat <<"EOF" | curlas --js | node | more
@@ -79,7 +79,7 @@ It pretty output auto.
         ....
 ```
 
-Or save it as a module, put into your spider project.
+Or save the module into your spider project.
 
 ```bash
 cat <<"EOF" | curlas --js  > ./_getList.js
