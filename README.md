@@ -24,7 +24,7 @@ Paste
 
 ```bash
 cat <<"EOF" | curlas --js 
-Shite-Insert(windows) or CMD-V(macos)
+shift-insert(windows) or CMD-V(macos)
 paste it
 EOF
 ```
