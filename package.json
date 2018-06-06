@@ -1,6 +1,6 @@
 {
   "name": "curlas",
-  "version": "4.4.3",
+  "version": "4.4.4",
   "description": "nodejs spider tool",
   "main": "index.js",
   "scripts": {
