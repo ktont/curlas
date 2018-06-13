@@ -8,7 +8,7 @@ npm install -g curlas
 
 ## Usage
 
-Chrome or Charles Network Capture
+Chrome / Charles / Postman, network capture
 
 Copy
 
@@ -24,7 +24,7 @@ Paste
 
 ```bash
 cat <<"EOF" | curlas --js 
-shift-insert(windows) or CMD-V(macos)
+shift-insert(windows) or CMD-V(os x)
 paste it
 EOF
 ```
@@ -36,7 +36,8 @@ You can run it directly.
 ```bash
 cat <<"EOF" | curlas --js | node | more
 curl 'http://google.com/' -H 'Upgrade-Insecure-Requests: 1' \
--H 'User-Agent: Safari/537.36' -H 'X-DevTools-Emulate-Network-Conditions-Client-Id: \
+-H 'User-Agent: Safari/537.36' \
+-H 'X-DevTools-Emulate-Network-Conditions-Client-Id: \
 1CC52EDD123227D4963363DF922B8CE8' --compressed
 EOF
 ```
