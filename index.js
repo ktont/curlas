@@ -104,6 +104,10 @@ function _parseArgv() {
       case '-o':
         output = _validateOutput(args_[++i]);
         break;
+      case '--help':
+      case '-h':
+        Usage();
+        break;
       case '--version':
       case '-v':
         console.log('curlas', require('./package.json').version);

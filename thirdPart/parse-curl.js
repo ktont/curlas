@@ -15,6 +15,7 @@ module.exports = exports.default = function(s) {
   var out = { method: 'GET', headers: {} };
   var state = '';
 
+
   args.forEach(function(arg) {
     switch (true) {
       case isURL(arg):
@@ -105,14 +106,13 @@ module.exports = exports.default = function(s) {
  */
 
 function rewrite(args) {
-  return args.reduce(function(args, a){
-    if (0 == a.indexOf('-X')) {
-      args.push('-X')
-      args.push(a.slice(2))
+  return args.reduce(function(args, a) {
+    if(/-X[A-Z]+/.test(a)) {
+      args.push('-X');
+      args.push(a.slice(2));
     } else {
-      args.push(a)
+      args.push(a);
     }
-
     return args
   }, [])
 }
