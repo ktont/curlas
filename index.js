@@ -11,25 +11,23 @@ var cookieModule = require('./thirdPart/cookie.js');
 var ndjson = require('./thirdPart/ndjson.js');
 
 function Usage() {
-  console.error(`
-  Usage: curlas ./req.sh
+  console.error(`Usage: curlas ./req.sh
          curlas ./req.sh --js
          curlas ./req.sh --sh
          curlas ./req.sh --python (future)
          curlas ./req.sh --java   (future)
 
          curlas ./req.sh --js --timeout 30000
-                 Default is 30000.
+                 Default is 30000 ms.
                  Http request will timeout after 30000 ms.
-                 If you want disable timeout, specify 0.
-                 Although is sending data, if is timeout, it will
-                 timeout. 
-                 NOTE: this timeout is not TCP timeout.
+                 Disable timeout, specify 0.
+                 Although is sending data, it timeout if timeout. 
+                 yes, this timeout is not TCP timeout.
 
          curlas ./req.sh --js --retry 3
                  Default is 3
-                 Http request, retry 3 times until success.
-                 Retry break in the forlowing:
+                 Retry 3 times until success.
+                 Retry break in the following situation:
                      status code 404
                      http request invalid
                      host not found
