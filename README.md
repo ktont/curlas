@@ -15,7 +15,7 @@ Copy
 ![](_img/1.png)
 
 
-Run cmd.exe or terminal
+Run bash shell
 
 Paste
 
@@ -30,6 +30,15 @@ EOF
 ```
 
 The output is a nodejs module
+
+__NOTE__
+windows
+```
+open notepad.exe
+ctrl+v paste, and save it to a file, c:\req.sh for example.
+open cmd.exe
+curlas --js c:\req.sh
+```
 
 You can run it directly.
 
