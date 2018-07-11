@@ -15,16 +15,15 @@ Copy
 ![](_img/1.png)
 
 
-Run bash shell
+Open up a Terminal and paste it in
 
-Paste
 
 ![](_img/6.png)
 
 
 ```bash
 cat <<"EOF" | curlas --js 
-shift-insert(windows) or CMD-V(os x)
+shift-insert(windows cygwin) or cmd-v(os x)
 paste it
 EOF
 ```
