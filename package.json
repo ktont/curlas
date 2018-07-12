@@ -1,7 +1,7 @@
 {
   "name": "curlas",
-  "version": "4.4.11",
-  "description": "nodejs spider tool",
+  "version": "4.4.12",
+  "description": "nodejs web crawl tool",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

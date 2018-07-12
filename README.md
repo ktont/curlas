@@ -6,67 +6,33 @@ a web spider tool
 
 npm install -g curlas
 
-## Usage
+## 1. Copy
 
 Chrome / Charles / Postman, network capture
-
-Copy
 
 ![](_img/1.png)
 
 
-Open up a Terminal and paste it in
+## 2. Paste
+Save it to a file
 
+![](_img/2.png)
 
-![](_img/6.png)
-
-
-```bash
-cat <<"EOF" | curlas --js 
-shift-insert(windows cygwin) or cmd-v(os x)
-paste it
-EOF
-```
-
-The output is a nodejs module
-
-__NOTE__
-windows
-```
-open notepad.exe
-ctrl+v paste, and save it to a file, c:\req.sh for example.
-open cmd.exe
-curlas --js c:\req.sh
-```
-
-You can run it directly.
+## 3. compile
 
 ```bash
-cat <<"EOF" | curlas --js | node | more
-curl 'http://google.com/' -H 'Upgrade-Insecure-Requests: 1' \
--H 'User-Agent: Safari/537.36' \
--H 'X-DevTools-Emulate-Network-Conditions-Client-Id: \
-1CC52EDD123227D4963363DF922B8CE8' --compressed
-EOF
+curlas --js /tmp/req.sh
 ```
 
-Or save the module into your spider project.
+![](_img/3.png)
+
+## 4. Save program
 
 ```bash
-cat <<"EOF" | curlas --js  > ./_getList.js
-curl http://localhost:8000 \
--H 'Content-Type: json' \
--H 'cookie: tk=abcd' \
--d '{"foo":"bar"}'
-EOF
+curlas --js /tmp/req.sh > _googleHome.js
 ```
+![](_img/4.png)
 
-## Support language
-
-- [x] sh
-- [x] nodejs
-- [ ] java
-- [ ] python
 
 
 
