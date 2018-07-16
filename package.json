@@ -1,6 +1,6 @@
 {
   "name": "curlas",
-  "version": "4.4.13",
+  "version": "4.4.14",
   "description": "nodejs web crawl tool",
   "main": "index.js",
   "scripts": {
@@ -16,8 +16,9 @@
     "spider",
     "node spider",
     "nodejs spider",
-    "node.js spider",
-    "jspider"
+    "crawler",
+    "node crawler",
+    "nodejs crawler",
   ],
   "bin": {
     "curlas": "./index.js"
