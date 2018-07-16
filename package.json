@@ -18,7 +18,7 @@
     "nodejs spider",
     "crawler",
     "node crawler",
-    "nodejs crawler",
+    "nodejs crawler"
   ],
   "bin": {
     "curlas": "./index.js"
