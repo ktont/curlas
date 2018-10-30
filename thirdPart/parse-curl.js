@@ -42,6 +42,13 @@ module.exports = exports.default = function(s) {
         state = 'user'
         break;
 
+      case arg == '-k':
+        out.agentOptions = {
+          rejectUnauthorized: false,
+          requestCert: true
+        };
+        break;
+
       case arg == '-I' || arg == '--head':
         out.method = 'HEAD'
         break;
