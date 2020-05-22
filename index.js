@@ -12,26 +12,13 @@ var ndjson = require('./thirdPart/ndjson.js');
 
 function Usage() {
   console.error(`Usage: curlas ./req.sh
-         curlas ./req.sh --js
-         curlas ./req.sh --sh
-         curlas ./req.sh --python (future)
-         curlas ./req.sh --java   (future)
 
-         curlas ./req.sh --js --timeout 30000
-                 Default is 30000 ms.
-                 Http request will timeout after 30000 ms.
-                 Disable timeout, specify 0.
-                 Although is sending data, it timeout if timeout. 
-                 yes, this timeout is not TCP timeout.
+         curlas ./req.sh --timeout 30000
+                specify the http request timeout value 30000.
 
-         curlas ./req.sh --js --retry 3
-                 Default is 3
-                 Retry 3 times until success.
-                 Retry break in the following situation:
-                     status code 404
-                     http request invalid
-                     host not found
-                 
+         curlas ./req.sh --retry 3
+                specify the http request retry 3 times until success.
+
 
 $ cat ./req.sh
 curl http://localhost:3333 -H 'A: 1' -H 'B: 2' -d '{"key":"val"}'
@@ -63,7 +50,7 @@ function _validateOutput(fname) {
 function _parseArgv() {
   var _ = [];
   var args_ = process.argv.slice(2);
-  var type = 'bash';
+  var type = 'javascript';
   var compressedFlag = true;
   var timeout = 30000;
   var retry = 3;
@@ -72,14 +59,6 @@ function _parseArgv() {
   for(var i = 0; i < args_.length; i++) {
     let a = args_[i];
     switch(a) {
-      case '--bash':
-      case '--sh':
-        type = 'bash';
-        break;
-      case '--javascript':
-      case '--js':
-        type = 'javascript';
-        break;
       case '--java':
       case '--python':
         Usage();
@@ -190,13 +169,6 @@ async function __runrun() {
   if(!curl) {
     console.error('no input');
     process.exit(1);
-  }
-
-  if(outputType == 'bash') {
-    console.log();
-    console.log(prettyBash(curl));
-    console.log();
-    process.exit(0);
   }
 
   compressedFlag = compressedFlag && curl.includes(' --compressed') ? 
